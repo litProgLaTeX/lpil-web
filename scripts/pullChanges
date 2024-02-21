@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# This bash script pulls the current contents of the Gebry and LPiL
+# PlasTeX plugins to the corresponding Python packages install in .venv
+
+rm -rf .venv/lib/python3.11/site-packages/lpilPlasTeX
+
+cp -R \
+  ../plastex-lpil-plugin/lpilPlasTeX \
+  .venv/lib/python3.11/site-packages/lpilPlasTeX
+
+
