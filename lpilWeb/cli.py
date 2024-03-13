@@ -53,16 +53,18 @@ def fabricatePlasTexArguments(buildDir) :
   # manipulate the command line arguments adding ours in the correct
   # places...
   pArgv = []
-  lArgv =  [ f"--dir={buildDir}", "--plugins", "lpilPlasTeX", "--" ]
-  #lArgv =  []
+  lArgv =  [
+    f"--dir={buildDir}",
+    #"--plugins",
+    #"gerbyPlasTeX",
+    #"lpilPlasTeX",
+    #"--"
+  ]
   fArgv = []
-  filePath = sys.argv[len(sys.argv)-1]
-  if filePath == '--help' or filePath == '-h' :
-    pArgv.append(filePath)
-    filePath = None
   nextIsConfig = False
+  nextIsRenderer = False
   verbose = False
-  for anArg in sys.argv[1:len(sys.argv)-1] :
+  for anArg in sys.argv[1:] :
     if anArg == '--verbose' or anArg == '-v' :
       verbose = True
       continue
@@ -76,9 +78,24 @@ def fabricatePlasTexArguments(buildDir) :
     if anArg == '--help' or anArg == '-h' :
       pArgv.append(anArg)
       continue
+    if nextIsRenderer :
+      nextIsRenderer = False
+      pArgv.extend(['--renderer', anArg])
+      continue
+    if anArg.startswith('--renderer') :
+      nextIsRenderer = True
+      continue
     pArgv.append(anArg)
+  print(yaml.dump(pArgv))
+  print(yaml.dump(lArgv))
+  print(yaml.dump(fArgv))
+  filePath = pArgv.pop()
+  if filePath.startswith('-') :
+    pArgv.append(filePath)
+    filePath = None
   theArgs = pArgv + lArgv + fArgv
-  theArgs.append(filePath)
+  if filePath :
+    theArgs.append(filePath)
   if verbose :
     print("-------------------")
     print(yaml.dump(theArgs))
@@ -96,11 +113,12 @@ def cli() :
 
   # check the file for TeX-MagicComments...
   theFile = theArgs[len(theArgs)-1]
-  lpilFile = createLpilBaseTexFile(theFile)
-  theArgs[len(theArgs)-1] = lpilFile
+  if not theFile.startswith('-') :
+    lpilFile = createLpilBaseTexFile(theFile)
+    theArgs[len(theArgs)-1] = lpilFile
+    print(f"Running PlasTeX on: {lpilFile}")
 
   # Now do the work (hand off to plasTeX)...
-  print(f"Running PlasTeX on: {lpilFile}")
   try :
     plasTeX.client.main(theArgs)
   except KeyboardInterrupt :

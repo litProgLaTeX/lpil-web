@@ -5,7 +5,7 @@
 
 rm -rf .venv/lib/python3.11/site-packages/plasTeX
 cp -R \
-  ../plastex-fork/plasTeX \
+  ../plastex-test/plasTeX \
   .venv/lib/python3.11/site-packages/plasTeX
 
 rm -rf .venv/lib/python3.11/site-packages/plastex_gerby_plugin
